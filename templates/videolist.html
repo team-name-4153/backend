@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TNStreaming Video Grid</title>
+    
+    <!-- Link to Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&family=Caveat:wght@700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="video-grid-container">
+        <header class="header">
+            <h1 class="title">TNStreaming</h1>
+            <input type="text" class="search-input" placeholder="input box for search">
+            <button class="search-button">SEARCH</button>
+            <button class="user-button">USER</button>
+        </header>
+
+        <!-- Container for the video grid -->
+        <div id="videoGrid" class="video-grid"></div>
+    </div>
+
+    <script>
+        // Example video list data from backend
+        const videoList = [
+            { coverImage: 'https://via.placeholder.com/150', title: 'Video 1', videoLink: '/video1' },
+            { coverImage: 'https://via.placeholder.com/150', title: 'Video 2', videoLink: '/video2' },
+            { coverImage: 'https://via.placeholder.com/150', title: 'Video 3', videoLink: '/video3' },
+            { coverImage: 'https://via.placeholder.com/150', title: 'Video 4', videoLink: '/video4' },
+            { coverImage: 'https://via.placeholder.com/150', title: 'Video 5', videoLink: '/video5' },
+            { coverImage: 'https://via.placeholder.com/150', title: 'Video 6', videoLink: '/video6' },
+            { coverImage: 'https://via.placeholder.com/150', title: 'Video 7', videoLink: '/video7' },
+            { coverImage: 'https://via.placeholder.com/150', title: 'Video 8', videoLink: '/video8' },
+            { coverImage: 'https://via.placeholder.com/150', title: 'Video 9', videoLink: '/video9' }
+        ];
+
+        // Function to create video cards dynamically
+        function createVideoGrid(videos) {
+            const videoGrid = document.getElementById('videoGrid');
+
+            videos.forEach(video => {
+                // Create a container for each video
+                const videoCard = document.createElement('div');
+                videoCard.className = 'video-card';
+
+                // Create a clickable link for each video
+                const videoLink = document.createElement('a');
+                videoLink.href = video.videoLink;
+
+                // Create the video cover element
+                const videoCover = document.createElement('div');
+                videoCover.className = 'video-cover';
+
+                // Create the image element
+                const img = document.createElement('img');
+                img.src = video.coverImage;
+                img.alt = 'Video Cover';
+                img.className = 'video-image';
+
+                // Create the video title element
+                const videoTitle = document.createElement('div');
+                videoTitle.className = 'video-small-title';
+                videoTitle.textContent = video.title;
+
+                // Append image and title to the cover element
+                videoCover.appendChild(img);
+                videoCover.appendChild(videoTitle);
+
+                // Append the cover to the link
+                videoLink.appendChild(videoCover);
+
+                // Append the link to the card
+                videoCard.appendChild(videoLink);
+
+                // Append the card to the grid
+                videoGrid.appendChild(videoCard);
+            });
+        }
+
+        // Initialize the grid with the video list
+        createVideoGrid(videoList);
+    </script>
+</body>
+</html>
