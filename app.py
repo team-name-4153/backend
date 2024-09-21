@@ -1,6 +1,7 @@
 from importlib import import_module
 from flask import Flask, render_template, Response
 import os
+
 if os.environ.get('CAMERA'):
     Camera = import_module('camera_' + os.environ['CAMERA']).Camera
 else:
@@ -16,9 +17,6 @@ def create_app():
 
 app = create_app()
 
-# @app.route('/')
-# def hello_world():
-#     return 'Hello World'
 @app.route('/')
 def index():
     """Video streaming home page."""
@@ -42,4 +40,8 @@ def video_feed():
 
 if __name__ == '__main__':
     
-    app.run(debug=app.config["DEBUG"])
+    app.run(
+        debug=app.config["DEBUG"],
+        host='0.0.0.0',
+        port=5001,
+    )
