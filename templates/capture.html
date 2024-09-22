@@ -29,10 +29,12 @@
                 } else  if (MediaRecorder.isTypeSupported('video/webm')) {
                     var options = {mimeType: 'video/webm'};
                 } else if (MediaRecorder.isTypeSupported('video/mp4')) {
-                    var options = {mimeType: 'video/mp4', videoBitsPerSecond : 100000};
+                    var options = {mimeType: 'video/mp4'};
                 } else {
                     console.error("no suitable mimetype found for this device");
                 }
+                options["videoBitsPerSecond"] = 2500000
+                options["audioBitsPerSecond"] = 128000
                 const mediaRecorder = new MediaRecorder(stream, options);
 
                 mediaRecorder.ondataavailable = async (event) => {
@@ -42,7 +44,7 @@
                     }
                 };
 
-                mediaRecorder.start(1000); // Send data every 100ms
+                mediaRecorder.start(100); // Send data every 100ms
                 status.innerText = 'Status: Streaming';
             } catch (error) {
                 console.error('Error accessing media devices.', error);
