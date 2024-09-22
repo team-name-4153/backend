@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Capture Video</title>
+</head>
+<body>
+    <h1>Capture Video</h1>
+    <video id="video" autoplay playsinline muted></video>
+    <p id="status">Status: Idle</p>
+    <button id="start">Start Streaming</button>
+    <button id="stop">Stop Streaming</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+    <script>
+        const video = document.getElementById('video');
+        const socket = io();
+        const status = document.getElementById('status');
+        let mediaRecorder;
+        let stream;
+
+        // Access the user's camera
+        async function startCapture() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                video.srcObject = stream;
+
+                if (MediaRecorder.isTypeSupported('video/webm; codecs=vp9')) {
+                    var options = {mimeType: 'video/webm; codecs=vp9'};
+                } else  if (MediaRecorder.isTypeSupported('video/webm')) {
+                    var options = {mimeType: 'video/webm'};
+                } else if (MediaRecorder.isTypeSupported('video/mp4')) {
+                    var options = {mimeType: 'video/mp4', videoBitsPerSecond : 100000};
+                } else {
+                    console.error("no suitable mimetype found for this device");
+                }
+                const mediaRecorder = new MediaRecorder(stream, options);
+
+                mediaRecorder.ondataavailable = async (event) => {
+                    if (event.data.size > 0) {
+                        const buffer = await event.data.arrayBuffer();
+                        socket.emit('video_frame', buffer);
+                    }
+                };
+
+                mediaRecorder.start(1000); // Send data every 100ms
+                status.innerText = 'Status: Streaming';
+            } catch (error) {
+                console.error('Error accessing media devices.', error);
+                status.innerText = 'Status: Error accessing camera';
+            }
+        }
+
+        // Stop capturing
+        function stopCapture() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                status.innerText = 'Status: Stopped';
+            }
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        }
+
+        // Event listeners for buttons
+        document.getElementById('start').addEventListener('click', startCapture);
+        document.getElementById('stop').addEventListener('click', stopCapture);
+
+    </script>
+</body>
+</html>

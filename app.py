@@ -1,12 +1,15 @@
-from importlib import import_module
+
 from flask import Flask, render_template, Response, send_from_directory
+from flask_socketio import SocketIO, emit
 import os
 import sys
+from video_utils.utils import start_streaming_thread, stop_streaming_thread
 
-if os.environ.get('CAMERA'):
-    Camera = import_module('camera_' + os.environ['CAMERA']).Camera
-else:
-    from camera.camera import Camera
+
+# if os.environ.get('CAMERA'):
+#     Camera = import_module('camera_' + os.environ['CAMERA']).Camera
+# else:
+#     from camera.camera import Camera
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -16,16 +19,28 @@ def create_app():
     return app
 
 app = create_app()
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 @app.route('/')
 def index():
     # return "ok yes"
-    return render_template('index.html')
+    return render_template('display_video_test.html')
 
 @app.route('/videos/<path:filename>')
 def serve_hls(filename):
     return send_from_directory('test_video', filename)
 
+@app.route('/capture')
+def capture():
+    return render_template('capture.html')
+
+@app.route('/watch')
+def watch():
+    return render_template('watch.html')
+
+@socketio.on('video_frame')
+def handle_video_frame(data):
+    emit('video_frame', data, broadcast=True, include_self=False)
 
 # def gen(camera):
 #     """Video streaming generator function."""
@@ -43,8 +58,8 @@ def serve_hls(filename):
 
 
 if __name__ == '__main__':
-    
-    app.run(
+    socketio.run(
+        app,
         debug=bool(int(app.config["DEBUG"])),
         host=os.environ.get("FLASK_RUN_HOST", "0.0.0.0"),
         port=int(os.environ.get("FLASK_RUN_PORT", "5000")),

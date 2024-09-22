@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Watch Video</title>
+</head>
+<body>
+    <h1>Watch Video</h1>
+    <video id="video" autoplay playsinline controls></video>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+    <script>
+        const video = document.getElementById('video');
+        const socket = io();
+        if (MediaRecorder.isTypeSupported('video/webm; codecs=vp9')) {
+            var options = {mimeType: 'video/webm; codecs=vp9'};
+        } else  if (MediaRecorder.isTypeSupported('video/webm')) {
+            var options = {mimeType: 'video/webm'};
+        } else if (MediaRecorder.isTypeSupported('video/mp4')) {
+            var options = {mimeType: 'video/mp4', videoBitsPerSecond : 100000};
+        } else {
+            console.error("no suitable mimetype found for this device");
+        }
+        let mediaSource = new MediaSource();
+        let sourceBuffer;
+        let queue = [];
+        let isAppending = false;
+
+        video.src = URL.createObjectURL(mediaSource);
+
+        mediaSource.addEventListener('sourceopen', () => {
+            try {
+                sourceBuffer = mediaSource.addSourceBuffer(options.mimeType);
+                sourceBuffer.mode = 'segments';
+
+                sourceBuffer.addEventListener('updateend', () => {
+                    isAppending = false;
+                    if (queue.length > 0) {
+                        appendNext();
+                    }
+                });
+
+                sourceBuffer.addEventListener('error', (e) => {
+                    console.error('SourceBuffer error:', e);
+                });
+            } catch (e) {
+                console.error('Exception while adding SourceBuffer:', e);
+            }
+        });
+
+        // Function to append the next buffer from the queue
+        function appendNext() {
+            if (queue.length === 0 || sourceBuffer.updating) {
+                return;
+            }
+            isAppending = true;
+            const chunk = queue.shift();
+            
+            try {
+                sourceBuffer.appendBuffer(chunk);
+            } catch (e) {
+                console.error('Error appending buffer:', e);
+            }
+        }
+
+        // Receive video frames from the server
+        socket.on('video_frame', (data) => {
+            console.log('Received video frame');
+            const uint8Array = new Uint8Array(data);
+            
+            queue.push(uint8Array);
+            if (!isAppending) {
+                appendNext();
+            }
+        });
+
+
+    </script>
+</body>
+</html>
