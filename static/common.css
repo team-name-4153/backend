@@ -1,0 +1,55 @@
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden
+}
+
+#local_vid {
+  height: 800px;
+  width: 100%;
+  object-fit: cover;
+  z-index: 100;
+}
+
+.video_grid {
+  z-index: 1;
+  position: relative;
+}
+
+.send-container {
+  display: flex;
+    align-items: center;
+    padding: 10px;
+}
+
+.send-container input {
+  flex: 1;
+    padding: 6px 8px;
+    outline: none;
+}
+
+.send-container button {
+  border: none;
+    background-color: #2488c2;
+    padding: 8px;
+    color: white;
+    outline: none;
+}
+
+.danmu {
+    position: absolute;
+    white-space: nowrap;
+    animation: move 5s linear forwards;
+  color: white;
+  font-weight: bold;
+}
+
+@keyframes move {
+    from {
+        right: -100%;
+    }
+    to {
+        right: 100%;
+    }
+}
