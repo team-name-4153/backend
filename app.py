@@ -137,7 +137,7 @@ def on_send_message(data):
     target_sid = data['target_id']
     sender_id = data['sender_id']
     message = data['message']
-    requests.post("http://localhost:5001/comments/upload", json={ "comment": message, "userId": sender_id })
+    requests.post("http://18.189.43.101:5000/comments/upload", json={ "comment": message, "userId": sender_id })
     socketio.emit('message', data, room=target_sid)
 
 
